@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro - Sistema de Entregas</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    input, select, button { display: block; margin: 8px 0; padding: 6px; }
+  </style>
+</head>
+<body>
+
+<h1>Criar Conta</h1>
+
+<form id="signupForm">
+  <input type="text" id="nome" placeholder="Nome completo" required>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="senha" placeholder="Senha" required>
+  <select id="tipo">
+    <option value="aluno">Aluno</option>
+    <option value="professor">Professor</option>
+  </select>
+  <button type="submit">Cadastrar</button>
+</form>
+
+<p>Já tem conta? <a href="login.html">Fazer login</a></p>
+
+<script>
+const API = "http://localhost:3000/api/users";
+
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const nome = document.getElementById("nome").value;
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+  const tipo = document.getElementById("tipo").value;
+
+  try {
+    const res = await fetch(`${API}/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, email, senha, tipo })
+    });
+
+    const data = await res.json();
+    console.log("RESPOSTA DO SERVIDOR:", data);
+
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+
+    alert("Conta criada com sucesso! Faça login.");
+    window.location.href = "login.html";
+
+  } catch (erro) {
+    console.error(erro);
+    alert("Erro ao conectar com o servidor!");
+  }
+});
+</script>
+
+</body>
+</html>

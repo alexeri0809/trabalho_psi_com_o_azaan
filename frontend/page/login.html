@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Sistema de Entregas</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    input, button { display: block; margin: 8px 0; padding: 6px; }
+  </style>
+</head>
+<body>
+
+<h1>Login</h1>
+
+<form id="loginForm">
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="senha" placeholder="Senha" required>
+  <button type="submit">Entrar</button>
+</form>
+
+<p>Não tem conta? <a href="signup.html">Criar conta</a></p>
+
+<script>
+const API = "http://localhost:3000/api/users";
+
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+
+  try {
+    const res = await fetch(`${API}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, senha })
+    });
+
+    const data = await res.json();
+    console.log("RESPOSTA DO SERVIDOR:", data);
+
+    if (!data.user) {
+      alert(data.error || "Erro no login");
+      return;
+    }
+
+    const user = data.user;
+
+    // Guardar usuário no localStorage
+    localStorage.setItem("user", JSON.stringify(user));
+
+    // Redirecionamento
+    if (user.tipo === "aluno") window.location.href = "aluno.html";
+    else if (user.tipo === "professor") window.location.href = "professor.html";
+    else alert("Tipo de usuário desconhecido: " + user.tipo);
+
+  } catch (erro) {
+    console.error(erro);
+    alert("Erro ao conectar com o servidor!");
+  }
+});
+</script>
+
+</body>
+</html>
