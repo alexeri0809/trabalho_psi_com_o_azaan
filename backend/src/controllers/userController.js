@@ -1,8 +1,11 @@
 const db = require('../db');
 
-// Signup
+// ============================
+// SIGNUP
+// ============================
 exports.signup = (req, res) => {
   const { nome, email, senha, tipo } = req.body;
+
   db.get("SELECT * FROM users WHERE email = ?", [email], (err, user) => {
     if (err) return res.status(500).json(err);
     if (user) return res.status(400).json({ error: "Email já registrado" });
@@ -18,12 +21,50 @@ exports.signup = (req, res) => {
   });
 };
 
-// Login
+// ============================
+// LOGIN
+// ============================
 exports.login = (req, res) => {
   const { email, senha } = req.body;
-  db.get("SELECT * FROM users WHERE email = ? AND senha = ?", [email, senha], (err, user) => {
-    if (err) return res.status(500).json(err);
-    if (!user) return res.status(400).json({ error: "Credenciais inválidas" });
-    res.json({ user });
+
+  db.get(
+    "SELECT * FROM users WHERE email = ? AND senha = ?",
+    [email, senha],
+    (err, user) => {
+      if (err) return res.status(500).json(err);
+      if (!user) return res.status(400).json({ error: "Credenciais inválidas" });
+
+      res.json({ user });
+    }
+  );
+};
+
+// ============================
+// LISTAR TODOS OS USUÁRIOS
+// ============================
+exports.listarUsuarios = (req, res) => {
+  db.all("SELECT id, nome, email, tipo FROM users", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: "Erro ao listar usuários" });
+    res.json(rows);
+  });
+};
+
+// ============================
+// LISTAR ALUNOS
+// ============================
+exports.listarAlunos = (req, res) => {
+  db.all("SELECT id, nome, email FROM users WHERE tipo = 'aluno'", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: "Erro ao listar alunos" });
+    res.json(rows);
+  });
+};
+
+// ============================
+// LISTAR PROFESSORES
+// ============================
+exports.listarProfs = (req, res) => {
+  db.all("SELECT id, nome, email FROM users WHERE tipo = 'professor'", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: "Erro ao listar professores" });
+    res.json(rows);
   });
 };

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Enviar Entrega</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <h3>Enviar Entrega</h3>
+    <div id="infoTrabalho" class="mb-3"></div>
+
+    <form id="formEntrega">
+      <input id="nomeAluno" class="form-control mb-2" disabled>
+      <textarea id="descricao" class="form-control mb-2" placeholder="Descrição da entrega (opcional)"></textarea>
+      <input id="ficheiro" type="file" class="form-control mb-2" />
+      <button class="btn btn-primary" type="submit">Enviar</button>
+    </form>
+    <button class="btn btn-link mt-3" onclick="window.history.back()">Voltar</button>
+  </div>
+
+<script>
+const API_ENTREGAR = "http://localhost:3000/api/trabalhos/entregar";
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user) { alert("Faça login!"); window.location.href="login.html"; }
+
+const params = new URLSearchParams(window.location.search);
+const trabalhoId = params.get("trabalhoId");
+
+document.getElementById("nomeAluno").value = user.nome;
+document.getElementById("infoTrabalho").textContent = `Trabalho ID: ${trabalhoId}`;
+
+document.getElementById("formEntrega").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const descricao = document.getElementById("descricao").value;
+
+  // Nota: upload de ficheiro real precisa de backend com multer.
+  // Aqui enviamos apenas metadados e, se quiseres depois adicionamos upload.
+  try {
+    const res = await fetch(API_ENTREGAR, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ trabalhoId: Number(trabalhoId), alunoId: user.id, ficheiro: null, descricao })
+    });
+    const j = await res.json();
+    if (j.error) return alert(j.error);
+    alert("Entrega registada!");
+    window.location.href = "aluno.html";
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao enviar entrega");
+  }
+});
+</script>
+</body>
+</html>

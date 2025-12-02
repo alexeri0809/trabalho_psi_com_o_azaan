@@ -10,7 +10,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Suas rotas
 const userRoutes = require('./routes/userRoutes');
+const trabalhoRoutes = require('./routes/trabalhoRoutes');
+
 app.use('/api/users', userRoutes);
+app.use('/api/trabalhos', trabalhoRoutes);
 
 // ... outras rotas
 

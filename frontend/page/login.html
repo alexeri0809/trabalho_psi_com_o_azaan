@@ -4,21 +4,55 @@
   <meta charset="UTF-8">
   <title>Login - Sistema de Entregas</title>
   <style>
-    body { font-family: Arial; margin: 20px; }
-    input, button { display: block; margin: 8px 0; padding: 6px; }
+    body {
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 350px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #005fcc;
+    }
+    a { color: #007bff; text-decoration: none; }
   </style>
 </head>
 <body>
 
-<h1>Login</h1>
+<div class="card">
+  <h2>Login</h2>
 
-<form id="loginForm">
-  <input type="email" id="email" placeholder="Email" required>
-  <input type="password" id="senha" placeholder="Senha" required>
-  <button type="submit">Entrar</button>
-</form>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="senha" placeholder="Senha" required>
+    <button type="submit">Entrar</button>
+  </form>
 
-<p>Não tem conta? <a href="signup.html">Criar conta</a></p>
+  <p>Não tem conta? <a href="signup.html">Criar conta</a></p>
+</div>
 
 <script>
 const API = "http://localhost:3000/api/users";
@@ -37,25 +71,15 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     });
 
     const data = await res.json();
-    console.log("RESPOSTA DO SERVIDOR:", data);
 
-    if (!data.user) {
-      alert(data.error || "Erro no login");
-      return;
-    }
+    if (!data.user) return alert(data.error || "Erro no login");
 
-    const user = data.user;
+    localStorage.setItem("user", JSON.stringify(data.user));
 
-    // Guardar usuário no localStorage
-    localStorage.setItem("user", JSON.stringify(user));
+    if (data.user.tipo === "aluno") window.location.href = "aluno.html";
+    else window.location.href = "professor.html";
 
-    // Redirecionamento
-    if (user.tipo === "aluno") window.location.href = "aluno.html";
-    else if (user.tipo === "professor") window.location.href = "professor.html";
-    else alert("Tipo de usuário desconhecido: " + user.tipo);
-
-  } catch (erro) {
-    console.error(erro);
+  } catch (err) {
     alert("Erro ao conectar com o servidor!");
   }
 });

@@ -1,14 +1,74 @@
 <!DOCTYPE html>
 <html lang="pt">
-<head><meta charset="UTF-8"><title>Aluno</title></head>
-<body>
-<h1>Painel do Aluno</h1>
-<p>Bem-vindo <span id="userNome"></span></p>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Painel do Aluno</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Painel do Aluno</h2>
+      <div>
+        <span id="userNome" class="me-3"></span>
+        <button id="logout" class="btn btn-outline-secondary">Logout</button>
+      </div>
+    </div>
+
+    <h5>Trabalhos para você</h5>
+    <div id="listaTrabalhos" class="list-group"></div>
+  </div>
+
 <script>
-const user=JSON.parse(localStorage.getItem("user"));
-if(!user){alert("Faça login!");window.location.href="login.html";}
-else if(user.tipo!=="aluno"){alert("Acesso negado!");window.location.href="login.html";}
-else document.getElementById("userNome").textContent=user.nome;
+const API_TRAB = "http://localhost:3000/api/trabalhos";
+const API_USERS = "http://localhost:3000/api/users";
+
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user || user.tipo !== "aluno") {
+  alert("Acesso negado. Faça login como aluno.");
+  window.location.href = "login.html";
+} else {
+  document.getElementById("userNome").textContent = user.nome;
+}
+
+document.getElementById("logout").addEventListener("click", () => {
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
+});
+
+async function loadTrabalhos() {
+  try {
+    const res = await fetch(`${API_TRAB}/aluno/${user.id}`);
+    const tarefas = await res.json();
+    const cont = document.getElementById("listaTrabalhos");
+    cont.innerHTML = "";
+    tarefas.forEach(t => {
+      const el = document.createElement("div");
+      el.className = "list-group-item";
+      el.innerHTML = `
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">${t.titulo}</h5>
+          <small>Prazo: ${t.prazo || "N/A"}</small>
+        </div>
+        <p class="mb-1">${t.descricao || ""}</p>
+        <div>
+          <button class="btn btn-sm btn-primary" onclick="abrirSubmissao(${t.id})">Enviar Entrega</button>
+        </div>
+      `;
+      cont.appendChild(el);
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao carregar trabalhos");
+  }
+}
+
+function abrirSubmissao(trabalhoId) {
+  window.location.href = `aluno_entregar.html?trabalhoId=${trabalhoId}`;
+}
+
+loadTrabalhos();
 </script>
 </body>
 </html>

@@ -39,6 +39,24 @@ exports.listarTrabalhosProfessor = (req, res) => {
     }
   );
 };
+// Listar entregas de um trabalho
+exports.listarEntregasPorTrabalho = (req, res) => {
+  const trabalhoId = req.params.trabalhoId;
+  db.all("SELECT e.*, u.nome AS alunoNome FROM entregas e JOIN users u ON e.alunoId = u.id WHERE e.trabalhoId = ?", [trabalhoId], (err, rows) => {
+    if (err) return res.status(500).json(err);
+    res.json(rows);
+  });
+};
+
+// Listar entregas de um trabalho por aluno específico
+exports.listarEntregasPorTrabalhoAluno = (req, res) => {
+  const trabalhoId = req.params.trabalhoId;
+  const alunoId = req.params.alunoId;
+  db.all("SELECT e.*, u.nome AS alunoNome FROM entregas e JOIN users u ON e.alunoId = u.id WHERE e.trabalhoId = ? AND e.alunoId = ?", [trabalhoId, alunoId], (err, rows) => {
+    if (err) return res.status(500).json(err);
+    res.json(rows);
+  });
+};
 
 // Listar trabalhos para aluno
 exports.listarTrabalhosAluno = (req, res) => {
